@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mirror cabinet 3D model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9edf0;--panel:#ffffff;--ink:#1d2328;--muted:#5b6670;--line:#c9d1d7;--btn:#f4f6f8;--btn-hover:#e3e8ec;--accent:#2f5d73;--viewer:#dfe5ea;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15191c;--panel:#1d2226;--ink:#e6eaed;--muted:#9aa5ae;--line:#323a40;--btn:#262c31;--btn-hover:#30373d;--accent:#8fc0d6;--viewer:#202629;color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#15191c;--panel:#1d2226;--ink:#e6eaed;--muted:#9aa5ae;--line:#323a40;--btn:#262c31;--btn-hover:#30373d;--accent:#8fc0d6;--viewer:#202629;color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55;}
+main{max-width:960px;margin:0 auto;padding:20px 16px 40px;}
+h1{font-size:clamp(1.4rem,4vw,2rem);font-weight:600;margin:0 0 4px;}
+.sub{color:var(--muted);margin:0 0 16px;font-size:0.95rem;}
+#wrap{position:relative;width:100%;height:min(62vh,560px);min-height:340px;touch-action:none;cursor:grab;border-radius:14px;background:var(--viewer);border:1px solid var(--line);overflow:hidden;}
+#wrap canvas{display:block;}
+.hint{position:absolute;left:12px;bottom:10px;font-size:0.8rem;color:var(--muted);pointer-events:none;}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0;}
+button{font:inherit;font-size:1rem;color:var(--ink);background:var(--btn);border:1px solid var(--line);border-radius:999px;padding:10px 22px;cursor:pointer;}
+button:hover{background:var(--btn-hover);}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+button.on{background:var(--accent);color:var(--panel);border-color:var(--accent);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:20px;}
+.card h2{font-size:1.05rem;font-weight:600;margin:0 0 10px;}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:0.95rem;}
+dt{color:var(--muted);}
+dd{margin:0;}
+</style>
+</head>
+<body>
+<main>
+<h1>Mirror cabinet with aircon pipe chase</h1>
+<p class="sub">167.5 × 105 × 17 cm wall cabinet. Drag with one finger to rotate, use two fingers to move and zoom.</p>
+<div id="wrap"><span class="hint">One finger rotates, two fingers move</span></div>
+<div class="bar">
+<button id="btnDoor">Open doors</button>
+<button id="btnPipe">Show pipe</button>
+</div>
+<section class="card">
+<h2>Layout</h2>
+<dl>
+<dt>Overall</dt><dd>167.5 W × 105 H × 17 D cm, 1.8 cm boards</dd>
+<dt>Left</dt><dd>47 cm bay behind a wooden door</dd>
+<dt>Middle</dt><dd>30 cm open shelving</dd>
+<dt>Right</dt><dd>Two mirror doors; the narrow one hinges on the right side panel and swings right</dd>
+<dt>Shelves</dt><dd>Two evenly spaced in every compartment, aligned across the cabinet</dd>
+<dt>Pipe</dt><dd>2 cm radius, boxed in at the back right and running front to back along the top right, hidden behind a cover board</dd>
+<dt>Cut-outs</dt><dd>5.5 cm wide, 4 cm deep at the back, 4 cm tall at the top</dd>
+</dl>
+</section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const wrap=document.getElementById('wrap');
+const W=167.5,H=105,D=17,t=1.8,PR=2;
+const NW=5.5,NH=4,ND=4;
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(35,wrap.clientWidth/wrap.clientHeight,1,2000);
+const ren=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ren.setPixelRatio(Math.min(window.devicePixelRatio,2));
+ren.setSize(wrap.clientWidth,wrap.clientHeight);
+wrap.appendChild(ren.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x888877,0.75));
+const dl=new THREE.DirectionalLight(0xffffff,0.6);dl.position.set(120,160,200);scene.add(dl);
+const dl2=new THREE.DirectionalLight(0xffffff,0.3);dl2.position.set(-150,80,-120);scene.add(dl2);
+const wood=new THREE.MeshStandardMaterial({color:0xc8a272,roughness:0.65});
+const woodIn=new THREE.MeshStandardMaterial({color:0xb48d5e,roughness:0.75});
+const mirror=new THREE.MeshStandardMaterial({color:0xcfe2ec,roughness:0.08,metalness:0.55});
+const pipeM=new THREE.MeshStandardMaterial({color:0xf2f2f0,roughness:0.5});
+const hingeM=new THREE.MeshStandardMaterial({color:0x777777,roughness:0.4,metalness:0.6});
+const frameM=new THREE.MeshStandardMaterial({color:0xbd9666,roughness:0.65});
+const edgeMat=new THREE.LineBasicMaterial({color:0x7a5c3a});
+const cab=new THREE.Group();scene.add(cab);
+const pipes=new THREE.Group();scene.add(pipes);
+function addMesh(g,m,parent){const me=new THREE.Mesh(g,m);me.add(new THREE.LineSegments(new THREE.EdgesGeometry(g,20),edgeMat));(parent||cab).add(me);return me;}
+function box(w,h,d,x,y,z,m,parent){if(w<=0.01||h<=0.01||d<=0.01)return;const me=addMesh(new THREE.BoxGeometry(w,h,d),m,parent);me.position.set(x,y,z);return me;}
+function hbox(xa,xb,ya,yb,za,zb,m){box(xb-xa,yb-ya,zb-za,(xa+xb)/2,(ya+yb)/2,(za+zb)/2,m);}
+function shape(pts){const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)s.lineTo(pts[i][0],pts[i][1]);s.closePath();return s;}
+function hboard(pts,yTop,m){const g=new THREE.ExtrudeGeometry(shape(pts),{depth:t,bevelEnabled:false});const me=addMesh(g,m);me.rotation.x=Math.PI/2;me.position.y=yTop;}
+function xboard(pts,xRight,m){const g=new THREE.ExtrudeGeometry(shape(pts),{depth:t,bevelEnabled:false});const me=addMesh(g,m);me.rotation.y=-Math.PI/2;me.position.x=xRight;}
+const doors=[];
+const L=-W/2,R=W/2,yT=H/2,yB=-H/2,zF=D/2,zB=-D/2;
+const xn=R-NW,yn=yT-NH,zn=zB+ND;
+const x0=L+t,d1=x0+47,d2=d1+t+30,rs=d2+t,zBk=zB+0.6;
+hbox(L,L+t,yB,yT,zB,zF,wood);
+hbox(R-t,R,yB,yn,zn,zF,wood);
+hbox(L+t,xn,yT-t,yT,zB,zF,wood);
+hboard([[L+t,zB],[xn,zB],[xn,zn],[R-t,zn],[R-t,zF],[L+t,zF]],yB+t,wood);
+hbox(L+t,xn-t,yB+t,yT-t,zB,zBk,woodIn);
+xboard([[zB,yB+t],[zn+t,yB+t],[zn+t,yn-t],[zF,yn-t],[zF,yT-t],[zB,yT-t]],xn,wood);
+hbox(xn,R-t,yB+t,yn-t,zn,zn+t,wood);
+hbox(xn,R-t,yn-t,yn,zn,zF,wood);
+hbox(xn,R,yn,yT,zF-t,zF,wood);
+hbox(d1,d1+t,yB+t,yT-t,zBk,zF,wood);
+hbox(d2,d2+t,yB+t,yT-t,zBk,zF,wood);
+const ya=yB+t,yb=yT-t,sp=(yb-ya-2*t)/3;
+for(let i=1;i<=2;i++){const yTop=ya+sp*i+t*i;
+hbox(x0,d1,yTop-t,yTop,zBk,zF,wood);
+hbox(d1+t,d2,yTop-t,yTop,zBk,zF,wood);
+hboard([[rs,zBk],[xn-t,zBk],[xn-t,zn+t],[R-t,zn+t],[R-t,zF],[rs,zF]],yTop,wood);}
+const zf=zF+0.9;
+function door(x1,x2,m,hingeRight,noL,noR){const w=x2-x1,h=H-1,b=1.5;const g=new THREE.Group();g.position.set(hingeRight?x2:x1,0,zf);cab.add(g);const cx=hingeRight?-w/2:w/2;const bl=noL?0:b,br=noR?0:b;
+box(w,b,t,cx,h/2-b/2,0,frameM,g);box(w,b,t,cx,-h/2+b/2,0,frameM,g);if(!noL)box(b,h-2*b,t,cx-w/2+b/2,0,0,frameM,g);if(!noR)box(b,h-2*b,t,cx+w/2-b/2,0,0,frameM,g);
+const pw=w-bl-br,pc=cx+(bl-br)/2;
+if(m===mirror){box(pw,h-2*b,1.2,pc,0,-0.3,woodIn,g);box(pw,h-2*b,0.6,pc,0,0.6,mirror,g);}else{box(pw,h-2*b,t-0.4,pc,0,-0.2,m,g);}
+g.userData.s=hingeRight?1:-1;doors.push(g);}
+door(L+0.5,d1+t/2-0.2,wood,false);
+const split=R-0.5-25.3;
+door(d2+t/2+0.2,split-0.1,mirror,false,false,true);
+door(split+0.1,R-0.5,mirror,true,true,false);
+[yB+12,yn-12].forEach(y=>{box(1.2,6,1.2,R-t-0.6,y,zF+0.2,hingeM);});
+const xp=R-NW/2,zp=zB+ND/2,yp=yT-NH/2;
+const vLen=yp-(yB-10);
+const vm=new THREE.Mesh(new THREE.CylinderGeometry(PR,PR,vLen,24),pipeM);vm.position.set(xp,(yp+yB-10)/2,zp);pipes.add(vm);
+const hLen=zF-t-0.3-zp;
+const hm=new THREE.Mesh(new THREE.CylinderGeometry(PR,PR,hLen,24),pipeM);hm.rotation.x=Math.PI/2;hm.position.set(xp,yp,zp+hLen/2);pipes.add(hm);
+const el=new THREE.Mesh(new THREE.SphereGeometry(PR,24,14),pipeM);el.position.set(xp,yp,zp);pipes.add(el);
+let pipeVisible=false;pipes.visible=false;
+let theta=-0.55,phi=1.32,dist=340;
+const tgt=new THREE.Vector3(0,0,0);
+function upd(){cam.position.set(tgt.x+dist*Math.sin(phi)*Math.sin(theta),tgt.y+dist*Math.cos(phi),tgt.z+dist*Math.sin(phi)*Math.cos(theta));cam.lookAt(tgt);cam.updateMatrixWorld();}
+function pan(dx,dy){const k=dist*0.0022;const right=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,0);const up=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,1);tgt.addScaledVector(right,-dx*k).addScaledVector(up,dy*k);tgt.clampScalar(-150,150);}
+const pts=new Map();let mode=null,lastMid=null,lastDist=0,lx=0,ly=0;
+function mid(){const a=[...pts.values()];return{x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)};}
+wrap.addEventListener('contextmenu',e=>e.preventDefault());
+wrap.addEventListener('pointerdown',e=>{wrap.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+if(pts.size===2){mode='two';const m=mid();lastMid=m;lastDist=m.d;}
+else if(pts.size===1){mode=(e.button===2||e.shiftKey)?'pan':'rotate';lx=e.clientX;ly=e.clientY;}
+wrap.style.cursor='grabbing';});
+wrap.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+if(mode==='two'&&pts.size===2){const m=mid();pan(m.x-lastMid.x,m.y-lastMid.y);if(lastDist>0)dist=Math.min(700,Math.max(60,dist*(lastDist/m.d)));lastMid=m;lastDist=m.d;}
+else if(mode==='rotate'){theta-=(e.clientX-lx)*0.008;phi=Math.min(2.9,Math.max(0.2,phi-(e.clientY-ly)*0.008));lx=e.clientX;ly=e.clientY;}
+else if(mode==='pan'){pan(e.clientX-lx,e.clientY-ly);lx=e.clientX;ly=e.clientY;}});
+function up(e){pts.delete(e.pointerId);if(pts.size===1){const a=[...pts.values()][0];mode='rotate';lx=a.x;ly=a.y;}else if(pts.size===0){mode=null;wrap.style.cursor='grab';}}
+wrap.addEventListener('pointerup',up);wrap.addEventListener('pointercancel',up);
+wrap.addEventListener('wheel',e=>{e.preventDefault();dist=Math.min(700,Math.max(60,dist+e.deltaY*0.3));},{passive:false});
+let open=0,target=0;
+const bd=document.getElementById('btnDoor');
+bd.onclick=()=>{target=target?0:1;bd.textContent=target?'Close doors':'Open doors';bd.classList.toggle('on',!!target);};
+const bp=document.getElementById('btnPipe');
+bp.onclick=()=>{pipeVisible=!pipeVisible;pipes.visible=pipeVisible;bp.textContent=pipeVisible?'Hide pipe':'Show pipe';bp.classList.toggle('on',pipeVisible);};
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function loop(){open=reduce?target:open+(target-open)*0.08;doors.forEach(d=>d.rotation.y=d.userData.s*open*1.75);upd();ren.render(scene,cam);requestAnimationFrame(loop);}
+loop();
+new ResizeObserver(()=>{const w=wrap.clientWidth,h=wrap.clientHeight;ren.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();}).observe(wrap);
+</script>
+</body>
+</html>
